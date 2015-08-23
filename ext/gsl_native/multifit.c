@@ -305,6 +305,18 @@ static VALUE rb_gsl_multifit_fdfsolver_print_state(VALUE obj, VALUE i)
   return Qtrue;
 }
 
+static VALUE rb_gsl_multifit_fdfsolver_state_string(VALUE obj, VALUE i)
+{
+  gsl_multifit_fdfsolver *solver = NULL;
+  char buf[1024];
+  CHECK_FIXNUM(i);
+  Data_Get_Struct(obj, gsl_multifit_fdfsolver, solver);
+  snprintf(buf, 1024, "iter: %d x = %15.8f %15.8f %15.8f |f(x)| = %g",
+   (int) FIX2INT(i), gsl_vector_get(solver->x, 0), gsl_vector_get(solver->x, 1),
+   gsl_vector_get(solver->x, 2), gsl_blas_dnrm2(solver->f));
+  return rb_str_new2(buf);
+}
+
 static VALUE rb_gsl_multifit_fdfsolver_fdf(VALUE obj)
 {
   gsl_multifit_fdfsolver *solver = NULL;
@@ -1857,6 +1869,7 @@ void Init_gsl_multifit(VALUE module)
   rb_define_method(cgsl_multifit_fdfsolver, "position", rb_gsl_multifit_fdfsolver_position, 0);
   //  rb_define_alias(cgsl_multifit_fdfsolver, "x", "position");
   rb_define_method(cgsl_multifit_fdfsolver, "print_state", rb_gsl_multifit_fdfsolver_print_state, 1);
+  rb_define_method(cgsl_multifit_fdfsolver, "state_string", rb_gsl_multifit_fdfsolver_state_string, 1);
   rb_define_method(cgsl_multifit_fdfsolver, "fdf", rb_gsl_multifit_fdfsolver_fdf, 0);
   rb_define_method(cgsl_multifit_fdfsolver, "test_delta", rb_gsl_multifit_fdfsolver_test_delta, 2);
   rb_define_method(cgsl_multifit_fdfsolver, "test_gradient", rb_gsl_multifit_fdfsolver_test_gradient, -1);
